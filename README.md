@@ -12,6 +12,249 @@ Do not rely on one giant prompt.
 Save the workflow into files that travel with every project.
 ```
 
+## Start Here: Use This In A New Project
+
+Use this section whenever you start a new app, tool, portfolio project, prototype, or serious experiment.
+
+There are two setup modes:
+
+- New empty project: copy the starter into a fresh folder, then start planning.
+- Existing project: copy the starter files into the existing repo, then adapt the docs and rules to what already exists.
+
+### Step 0: Do The One-Time Global Setup
+
+Install the Claude agents you want available in every project:
+
+```bash
+mkdir -p ~/.claude/agents
+cp ~/dev/project-starter-kit/.claude/agents/code-review-agent.md ~/.claude/agents/
+cp ~/dev/project-starter-kit/.claude/agents/debugging-agent.md ~/.claude/agents/
+cp ~/dev/project-starter-kit/.claude/agents/security-agent.md ~/.claude/agents/
+cp ~/dev/project-starter-kit/.claude/agents/architecture-agent.md ~/.claude/agents/
+cp ~/dev/project-starter-kit/.claude/agents/testing-agent.md ~/.claude/agents/
+```
+
+Do this once per machine. These agents become your default reviewer, debugger, security reviewer, architect, and testing strategist across projects.
+
+### Step 1: Create The New Project Folder
+
+For a new project, create an empty folder:
+
+```bash
+mkdir my-new-project
+cd my-new-project
+git init
+```
+
+If you already created a GitHub repo, clone it first:
+
+```bash
+git clone git@github.com:YOUR_USERNAME/YOUR_REPO.git
+cd YOUR_REPO
+```
+
+### Step 2: Copy The Starter Files
+
+Copy the starter into the project, but do not copy the starter kit's `.git` directory.
+
+Recommended:
+
+```bash
+rsync -a --exclude .git ~/dev/project-starter-kit/ ./
+```
+
+If you are copying into an existing repo, this command will add the starter files alongside your current code. Review conflicts before overwriting project-specific files such as `README.md`, `.gitignore`, `.github/workflows/ci.yml`, or `.env.example`.
+
+### Step 3: Bootstrap The Project
+
+Run the bootstrap script:
+
+```bash
+bash scripts/bootstrap_project.sh
+```
+
+This creates any missing starter directories and docs:
+
+- `docs/`
+- `.claude/agents/`
+- `.claude/hooks/`
+- `.cursor/rules/`
+- `.github/workflows/`
+- `scripts/`
+- `.env.example`
+- `.gitignore` if one does not already exist
+
+If `pre-commit` is installed, the bootstrap script also installs commit and pre-push hooks.
+
+### Step 4: Replace Template Placeholders
+
+Before asking an AI agent to code, update or review these files:
+
+1. `docs/PROJECT_BRIEF.md`: describe the product, users, MVP, non-MVP scope, success metrics, and risks.
+2. `docs/PROJECT_STATUS.md`: record the current state, version, known issues, next tasks, and "do not break" areas.
+3. `docs/ARCHITECTURE.md`: define the stack, folder structure, service boundaries, data flow, and deployment assumptions.
+4. `docs/DATA_MODEL.md`: define entities, fields, relationships, validation rules, indexes, and example payloads.
+5. `docs/API_CONTRACT.md`: define routes, request/response bodies, errors, auth requirements, and compatibility rules.
+6. `docs/TESTING.md`: define unit, integration, API, frontend, end-to-end, regression, and manual verification coverage.
+7. `docs/SECURITY_REVIEW.md`: define threats, sensitive data, auth risks, LLM risks, secrets risks, and required security tests.
+8. `docs/DECISIONS.md`: record architectural and product decisions as they happen.
+
+For a very small project, you can keep these docs short. For legal, finance, health, personal-data, or LLM projects, fill them in carefully before implementation.
+
+### Step 5: Customize The Project Rules
+
+Adjust the starter to the project before coding:
+
+1. Update `.env.example` with the exact environment variables the project expects.
+2. Edit `CLAUDE.md` if the stack differs from the default FastAPI, Next.js, TypeScript, Tailwind, pytest setup.
+3. Edit `AGENTS.md` if the project has stricter rules, protected domains, or required workflows.
+4. Remove unused Cursor rules from `.cursor/rules/` if the stack does not use FastAPI or Next.js.
+5. Add project-specific Claude agents under `.claude/agents/` for domain risks.
+6. Adjust protected patterns in `.claude/hooks/protect-files.sh` for files agents should not edit.
+7. Update `.github/workflows/ci.yml` once the real dependency manager and test commands are known.
+
+Examples of project-specific agents:
+
+- Legal document generator: `docx-xml-fidelity-agent.md`, `placeholder-schema-agent.md`, `golden-output-testing-agent.md`
+- Finance product: `quant-validation-agent.md`, `data-integrity-agent.md`, `backtesting-agent.md`
+- Community app: `community-safety-agent.md`, `supabase-rls-agent.md`, `notification-flow-agent.md`
+
+### Step 6: Ask The AI To Plan Before Coding
+
+Open the project in Claude Code, Cursor, or another coding agent and start with this prompt:
+
+```text
+Read AGENTS.md, CLAUDE.md, and PROJECT_STARTER_SYSTEM.md.
+
+This project is: [describe it].
+
+Do not write app code yet.
+
+Generate:
+1. docs/PROJECT_BRIEF.md
+2. docs/ARCHITECTURE.md
+3. docs/DATA_MODEL.md
+4. docs/API_CONTRACT.md
+5. docs/TESTING.md
+6. docs/SECURITY_REVIEW.md
+7. docs/DECISIONS.md
+
+After that, give me the implementation sequence.
+```
+
+Review the generated docs before allowing implementation. The purpose of this starter kit is to make the agent write down the plan, contracts, risks, and tests before it starts changing app code.
+
+### Step 7: Install Local Quality Tools
+
+Install the tools that match your project.
+
+For Python projects:
+
+```bash
+python -m pip install pre-commit pytest ruff
+pre-commit install
+pre-commit install -t pre-push
+```
+
+For Node/Next.js projects, install project dependencies first:
+
+```bash
+npm install
+```
+
+Then run the starter checks:
+
+```bash
+bash scripts/validate_env.sh
+bash scripts/run_checks.sh
+bash scripts/run_tests.sh
+```
+
+The scripts are intentionally tolerant before the real app exists. They skip unavailable tools and missing test directories so the starter can be used at day zero.
+
+### Step 8: Commit The Starter Baseline
+
+Commit the starter files before writing application code:
+
+```bash
+git add .
+git commit -m "Add project starter system"
+```
+
+This gives you a clean baseline. Future commits should separate planning, infrastructure, and product implementation when possible.
+
+### Step 9: Start Implementation
+
+Only start coding after the planning docs exist.
+
+Recommended flow:
+
+```text
+Idea
+  |
+Copy project-starter-kit
+  |
+Fill PROJECT_BRIEF.md
+  |
+Use architecture-agent
+  |
+Use data-model-agent
+  |
+Use api-contract-agent
+  |
+Use testing-agent
+  |
+Use security-agent
+  |
+Start coding
+  |
+Run hooks + tests
+  |
+Use code-review-agent
+  |
+Update PROJECT_STATUS.md
+```
+
+### Step 10: Keep The Project OS Current
+
+After each meaningful feature or fix:
+
+1. Run `bash scripts/run_checks.sh`.
+2. Run `bash scripts/run_tests.sh`.
+3. Use the `code-review-agent`.
+4. Update `docs/PROJECT_STATUS.md`.
+5. Update `docs/DECISIONS.md` if an architectural or product decision changed.
+6. Update `docs/API_CONTRACT.md`, `docs/DATA_MODEL.md`, or `docs/TESTING.md` if implementation changed those contracts.
+
+This is what makes the starter useful across long-running projects: the next session can recover the current system state from the repo instead of from memory.
+
+### Project Size Guidance
+
+For a small weekend project, use:
+
+- `AGENTS.md`
+- `docs/PROJECT_STATUS.md`
+- Pre-commit
+- Basic CI
+
+For a serious portfolio or startup project, use:
+
+- Full starter kit
+- Agents
+- Hooks
+- CI
+- Docs
+- Security review
+- Testing plan
+
+For legal, finance, health, or LLM projects, add:
+
+- Extra security review
+- Data integrity review
+- Golden tests where outputs must be stable
+- Disclaimers where appropriate
+- Audit logs where appropriate
+
 ## What This Repository Is
 
 This repo is not an application. It is a template for applications.
@@ -68,9 +311,10 @@ This repository is the template layer.
 Copy this repo into each new project:
 
 ```bash
-cp -R ~/dev/project-starter-kit/. my-new-project/
+mkdir my-new-project
 cd my-new-project
 git init
+rsync -a --exclude .git ~/dev/project-starter-kit/ ./
 bash scripts/bootstrap_project.sh
 ```
 
@@ -475,106 +719,6 @@ It has two jobs:
 - `frontend-checks`: Node setup, package install when lockfiles exist, lint, typecheck, and tests when package scripts exist.
 
 The workflow is intentionally generic so it can run before a project has a full app structure.
-
-## How To Start A New Project
-
-Copy the starter:
-
-```bash
-mkdir my-new-project
-cp -R ~/dev/project-starter-kit/. my-new-project/
-cd my-new-project
-git init
-bash scripts/bootstrap_project.sh
-```
-
-Then open the project in Claude Code or Cursor and start with:
-
-```text
-Read AGENTS.md, CLAUDE.md, and PROJECT_STARTER_SYSTEM.md.
-
-This project is: [describe it].
-
-Do not write app code yet.
-
-Generate:
-1. docs/PROJECT_BRIEF.md
-2. docs/ARCHITECTURE.md
-3. docs/DATA_MODEL.md
-4. docs/API_CONTRACT.md
-5. docs/TESTING.md
-6. docs/SECURITY_REVIEW.md
-7. docs/DECISIONS.md
-
-After that, give me the implementation sequence.
-```
-
-## Recommended Workflow
-
-```text
-Idea
-  |
-Copy project-starter-kit
-  |
-Fill PROJECT_BRIEF.md
-  |
-Use architecture-agent
-  |
-Use data-model-agent
-  |
-Use api-contract-agent
-  |
-Use testing-agent
-  |
-Use security-agent
-  |
-Start coding
-  |
-Run hooks + tests
-  |
-Use code-review-agent
-  |
-Update PROJECT_STATUS.md
-```
-
-## Project Size Guidance
-
-For a small weekend project, use:
-
-- `AGENTS.md`
-- `docs/PROJECT_STATUS.md`
-- Pre-commit
-- Basic CI
-
-For a serious portfolio or startup project, use:
-
-- Full starter kit
-- Agents
-- Hooks
-- CI
-- Docs
-- Security review
-- Testing plan
-
-For legal, finance, health, or LLM projects, add:
-
-- Extra security review
-- Data integrity review
-- Golden tests where outputs must be stable
-- Disclaimers where appropriate
-- Audit logs where appropriate
-
-## Customizing The Starter
-
-After copying this template into a real project:
-
-1. Replace placeholder docs with real project context.
-2. Update `.env.example` with real required variables.
-3. Remove unused Cursor rules if the stack differs.
-4. Add project-specific Claude agents under `.claude/agents/`.
-5. Adjust protected patterns in `.claude/hooks/protect-files.sh`.
-6. Update CI once the real dependency manager and test commands are known.
-7. Keep `docs/PROJECT_STATUS.md` current after every major change.
 
 ## Design Principles
 
