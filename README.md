@@ -1,6 +1,26 @@
-# Pavan Project Starter
+<a id="readme-top"></a>
 
-A reusable Project OS for serious software projects.
+<div align="center">
+  <h1>Pavan Project Starter</h1>
+  <p><strong>A project operating system for AI-assisted software.</strong></p>
+  <p>A reusable starter for planning, implementation, review, testing, documentation, and safety before application code begins.</p>
+  <p>
+    <a href="#start-here-use-this-in-a-new-project"><strong>Start a project »</strong></a>
+    <br /><br />
+    <a href="PROJECT_STARTER_SYSTEM.md">Explore the workflow</a>
+    &middot;
+    <a href="https://github.com/pavan2184/pavan-project-starter/issues/new">Report a bug</a>
+    &middot;
+    <a href="https://github.com/pavan2184/pavan-project-starter/issues/new">Request a feature</a>
+  </p>
+</div>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Docs-Markdown-000000?logo=markdown&amp;logoColor=white" alt="Markdown" />
+  <img src="https://img.shields.io/badge/Automation-Bash-4EAA25?logo=gnubash&amp;logoColor=white" alt="Bash" />
+  <img src="https://img.shields.io/badge/Quality-pre--commit-FAB040?logo=precommit&amp;logoColor=white" alt="pre-commit" />
+  <img src="https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions&amp;logoColor=white" alt="GitHub Actions" />
+</p>
 
 This repository is a starter kit you can copy into new projects before writing application code. It gives each project a repeatable operating system for AI-assisted planning, implementation, review, testing, documentation, and safety checks.
 
